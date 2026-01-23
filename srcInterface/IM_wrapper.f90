@@ -1373,13 +1373,19 @@ contains
               ! Put Electrons
               Buff_V(3) = Buff_V(3) + w * PreF(e_, iLat, iLon, neng+2)
               Buff_V(4) = Buff_V(4) + w * Eje1(e_, iLat, iLon)
-          elseif(nVar==60) then
+          elseif(nVar==4*neng) then
               ! Put ions
-              Buff_V(1:15) = Buff_V(1:15) + w * PreF(H_, iLat, iLon, 1:15)
-              Buff_V(16:30) = Buff_V(16:30) + w * PreP(H_, iLat, iLon, 1:15)
+              Buff_V(1:neng) = Buff_V(1:neng) + w * PreF(H_, iLat, iLon, 1:neng)
+              Buff_V(neng+1:2*neng) = Buff_V(neng+1:2*neng) + w * &
+                      PreP(H_, iLat, iLon, 1:15)
               ! Put Electrons
-              Buff_V(31:45) = Buff_V(31:45) + w * PreF(e_, iLat, iLon, 1:15)
-              Buff_V(46:60) = Buff_V(46:60) + w * PreP(e_, iLat, iLon, 1:15)
+              Buff_V(2*neng+1:3*neng) = Buff_V(2*neng+1:3*neng) + w * &
+                      PreF(e_, iLat, iLon, 1:neng)
+              Buff_V(3*neng+1:4*neng) = Buff_V(3*neng+1:4*neng) + w * &
+                      PreP(e_, iLat, iLon, 1:neng)
+          else
+              call CON_stop(NameSub//' CIMI coupling currently only uses '//&
+                            'nVar=4 or 4*neng')
           end if
           ! OLD IMPLEMENTATION
           !Buff_V(1) = Buff_V(1) - w * FAC_C(iLat,iLon)/2.0 ! / 1.0e6
