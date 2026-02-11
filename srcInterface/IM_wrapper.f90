@@ -1306,14 +1306,21 @@ contains
     RETURN
   end subroutine IM_put_from_ie_complete
   !============================================================================
-  subroutine IM_get_info_for_ie(nEngIM)
+  subroutine IM_get_info_for_ie(nEngIM, EngIM)
       ! Tell IE how many energy bins are used in IM output
       use ModCimiGrid, ONLY: neng
+      use ModCimi, ONLY: energy
+      use ModCimiPlanet,ONLY: nspec
 
       integer, intent(out) :: nEngIM
+      real, intent(out), optional :: EngIM(:, :)
 
       !------------------------------------------------------------------------
       nEngIM = neng
+      if (present(EngIM)) then
+         EngIM(1, :) = energy(1, :) ! Hydrogen Energy Grid
+         EngIM(2, :) = energy(nspec, :) ! Electron Energy Grid
+      endif
 
   end subroutine IM_get_info_for_ie
   !============================================================================
@@ -1366,22 +1373,20 @@ contains
        ! Only worry about the northern hemisphere....  IE can fix the southern hemisphere.
        ! For now, southern hemisphere will be implemented soon
        if (iLat <= nLat .and. iLon <= nLon) then
-          if(nVar == 4) then
+          if(nVar >= 4) then
               ! Put ions
               Buff_V(1) = Buff_V(1) + w * PreF(H_, iLat, iLon, neng+2)
               Buff_V(2) = Buff_V(2) + w * Eje1(H_, iLat, iLon)
               ! Put Electrons
               Buff_V(3) = Buff_V(3) + w * PreF(e_, iLat, iLon, neng+2)
               Buff_V(4) = Buff_V(4) + w * Eje1(e_, iLat, iLon)
-          elseif(nVar==4*neng) then
+          endif
+          if(nVar==(4 + 2 * neng)) then
               ! Put ions
-              Buff_V(1:neng) = Buff_V(1:neng) + w * PreF(H_, iLat, iLon, 1:neng)
-              Buff_V(neng+1:2*neng) = Buff_V(neng+1:2*neng) + w * &
-                      PreP(H_, iLat, iLon, 1:15)
+              Buff_V(5:4+neng) = Buff_V(5:4+neng) + w * &
+                      PreP(H_, iLat, iLon, 1:neng)
               ! Put Electrons
-              Buff_V(2*neng+1:3*neng) = Buff_V(2*neng+1:3*neng) + w * &
-                      PreF(e_, iLat, iLon, 1:neng)
-              Buff_V(3*neng+1:4*neng) = Buff_V(3*neng+1:4*neng) + w * &
+              Buff_V(5+neng:4+2*neng) = Buff_V(5+neng:4+2*neng) + w * &
                       PreP(e_, iLat, iLon, 1:neng)
           else
               call CON_stop(NameSub//' CIMI coupling currently only uses '//&
