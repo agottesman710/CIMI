@@ -800,6 +800,9 @@ subroutine CIMI_set_parameters(NameAction)
      case('#RBSPENERGYGRID')
         call read_var('UseRBSPGrid', UseRBSPGrid)
         if (UseRBSPGrid) neng = nRBSPEnergy
+
+     case('#ELECTRONGRIDRATIO')
+        call read_var('ElectronGridRatio', ElectronGridRatio)
         
      case('#IMTIMESTEP')
         call read_var('IMDeltaT [s]',dt)
