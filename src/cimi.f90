@@ -3132,7 +3132,7 @@ subroutine cimi_precip_calc(dsec)
   use ModCimi,			ONLY:	&
        preF, preP, Eje1, &
        xlel => eChangeOperator_VICI, plel => pChangeOperator_VICI, &
-       OpLossCone_, OpLossCone0_
+       OpLossCone_, OpLossCone0_, energy
   use ModCimiTrace, 		ONLY:	iba
   use ModCimiGrid,		ONLY:	&
        nProc,iProc,iComm,MinLonPar,MaxLonPar,nt,np,neng,xlatr,xmlt,dlat
@@ -3142,7 +3142,7 @@ subroutine cimi_precip_calc(dsec)
 
   implicit none
 
-  real:: dsec, dlel, dplel, area, area1, Asec
+  real:: dsec, dlel, dplel, area, area1, Asec, Ewmr, kc, phi_wmr
   integer:: n, i, j, k
   !----------------------------------------------------------------------------
   preF(1:nspec,1:np,1:nt,1:neng+2)=0.
@@ -3165,6 +3165,15 @@ subroutine cimi_precip_calc(dsec)
 
                  ! meanE for E>gride(je)
                  if (k == neng+1) Eje1(n,i,j)=dlel/dplel
+                 ! meanE for E>gride(je)                                                                                                                                                                                                                                     
+                 if (k == neng+1) Eje1(n,i,j)=dlel/dplel
+                 if (k > neng) cycle
+                 if(n == 3 .and. energy(n, k) < 30000) then
+                    Ewmr = 0.073 + 0.933 * Eje1(n,i,j) - 0.0092 * (Eje1(n,i,j) **2)
+                    kc = 3.36 - EXP(0.597 - 0.37 * Eje1(n,i,j) + 0.00794 * (Eje1(n,i,j)**2))
+                    preF(n,i,j,k) = kc * preF(n,i,j,k)
+                    Eje1(n,i,j) = Ewmr
+                 end if
 
               endif
            enddo
