@@ -1388,7 +1388,9 @@ contains
               ! Put Electrons
               Buff_V(5+neng:4+2*neng) = Buff_V(5+neng:4+2*neng) + w * &
                       PreP(e_, iLat, iLon, 1:neng)
-          else
+          else if(nVar == 4) then
+            CYCLE
+          else 
               call CON_stop(NameSub//' CIMI coupling currently only uses '//&
                             'nVar=4 or 4*neng')
           end if
