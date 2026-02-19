@@ -3170,7 +3170,7 @@ subroutine cimi_precip_calc(dsec)
            if(n == 3) then
                Ewmr = 0.073 + 0.933 * Eje1(n,i,j) - 0.0092 * (Eje1(n,i,j) **2)
                kc = 3.36 - EXP(0.597 - 0.37 * Eje1(n,i,j) + 0.00794 * (Eje1(n,i,j)**2))
-               preF(n,i,j,k+2) = kc * preF(n,i,j,neng+2)
+               preF(n,i,j,neng+2) = kc * preF(n,i,j,neng+2)
                Eje1(n,i,j) = Ewmr
            end if
         enddo
