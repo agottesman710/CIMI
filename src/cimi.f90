@@ -3165,18 +3165,14 @@ subroutine cimi_precip_calc(dsec)
 
                  ! meanE for E>gride(je)
                  if (k == neng+1) Eje1(n,i,j)=dlel/dplel
-                 ! meanE for E>gride(je)                                                                                                                                                                                                                                     
-                 if (k == neng+1) Eje1(n,i,j)=dlel/dplel
-                 if (k > neng) cycle
-                 if(n == 3 .and. energy(n, k) < 30000) then
-                    Ewmr = 0.073 + 0.933 * Eje1(n,i,j) - 0.0092 * (Eje1(n,i,j) **2)
-                    kc = 3.36 - EXP(0.597 - 0.37 * Eje1(n,i,j) + 0.00794 * (Eje1(n,i,j)**2))
-                    preF(n,i,j,k) = kc * preF(n,i,j,k)
-                    Eje1(n,i,j) = Ewmr
-                 end if
-
               endif
            enddo
+           if(n == 3) then
+               Ewmr = 0.073 + 0.933 * Eje1(n,i,j) - 0.0092 * (Eje1(n,i,j) **2)
+               kc = 3.36 - EXP(0.597 - 0.37 * Eje1(n,i,j) + 0.00794 * (Eje1(n,i,j)**2))
+               preF(n,i,j,k) = kc * preF(n,i,j,neng+2)
+               Eje1(n,i,j) = Ewmr
+           end if
         enddo
      enddo
   enddo
