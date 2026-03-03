@@ -3164,7 +3164,7 @@ subroutine cimi_precip_calc(dsec)
                  preP(n,i,j,k)=-dplel/Asec            ! N flux
 
                  ! meanE for E>gride(je)
-                 if (k == neng+2) Eje1(n,i,j)=dlel/dplel * 1000
+                 if (k == neng+2) Eje1(n,i,j)=dlel/dplel
               endif
            enddo
            !if(n == 3) then
