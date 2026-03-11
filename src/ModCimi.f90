@@ -56,7 +56,7 @@ Module ModCimi
   logical :: IsStandAlone = .false.
   logical :: DoCalcPrecip = .true.
   logical :: IsStrictDrift = .false.
-  real :: DtCalcPrecip = 10.
+  real :: DtCalcPrecip = 5.
 contains
 
   subroutine init_mod_cimi
