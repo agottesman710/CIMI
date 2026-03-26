@@ -1336,6 +1336,7 @@ contains
     use ModCimiPlanet,ONLY: H_, O_, e_, He_, Sw_
     use ModCimiGrid,  ONLY: neng
     use CON_router,   ONLY: IndexPtrType, WeightPtrType
+    use ModCimiTrace, ONLY: iba
 
     integer,intent(in)            :: nPoint, iPointStart, nVar
     real,intent(out)              :: Buff_V(nVar)
@@ -1380,19 +1381,23 @@ contains
               ! Put Electrons
               Buff_V(3) = Buff_V(3) + w * PreF(e_, iLat, iLon, neng+2)
               Buff_V(4) = Buff_V(4) + w * Eje1(e_, iLat, iLon)
-          endif
-          if(nVar==(4 + 2 * neng)) then
+          end if
+          if(nVar >= 5) then
+              ! Put boundary location
+              if(iLat <= iba(iLon)) Buff_V(5) = Buff_V(5) + w
+          end if
+          if(nVar==(5 + 2 * neng)) then
               ! Put ions
-              Buff_V(5:4+neng) = Buff_V(5:4+neng) + w * &
+              Buff_V(6:5+neng) = Buff_V(6:5+neng) + w * &
                       PreP(H_, iLat, iLon, 1:neng)
               ! Put Electrons
-              Buff_V(5+neng:4+2*neng) = Buff_V(5+neng:4+2*neng) + w * &
+              Buff_V(6+neng:5+2*neng) = Buff_V(6+neng:5+2*neng) + w * &
                       PreP(e_, iLat, iLon, 1:neng)
-          else if(nVar == 4) then
+          else if(nVar == 4 | nVar == 5) then
             CYCLE
           else 
               call CON_stop(NameSub//' CIMI coupling currently only uses '//&
-                            'nVar=4 or 4*neng')
+                            'nVar=4,5 or 5+2*neng')
           end if
           ! OLD IMPLEMENTATION
           !Buff_V(1) = Buff_V(1) - w * FAC_C(iLat,iLon)/2.0 ! / 1.0e6
