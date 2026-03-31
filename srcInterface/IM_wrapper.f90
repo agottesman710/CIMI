@@ -1393,7 +1393,7 @@ contains
               ! Put Electrons
               Buff_V(6+neng:5+2*neng) = Buff_V(6+neng:5+2*neng) + w * &
                       PreP(e_, iLat, iLon, 1:neng)
-          else if(nVar == 4 | nVar == 5) then
+          else if(nVar == 4 .or. nVar == 5) then
             CYCLE
           else 
               call CON_stop(NameSub//' CIMI coupling currently only uses '//&
