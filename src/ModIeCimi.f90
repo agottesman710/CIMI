@@ -5,6 +5,7 @@ module ModIeCimi
   real :: pot(np,nt)=0.0
   logical :: UseIe =.true.
   logical :: UseWeimer =.false.
+  real :: MaxEnergyCouple = 40.0
 contains
 
   subroutine init_mod_iecimi

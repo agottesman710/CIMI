@@ -21,7 +21,7 @@ subroutine CIMI_set_parameters(NameAction)
   use ModImTime,	 ONLY: iStartTime_I, TimeMax
   use ModCimiBoundary,	 ONLY: &
        UseBoundaryEbihara, UseYoungEtAl
-  use ModIeCimi,	 ONLY: UseWeimer
+  use ModIeCimi,	 ONLY: UseWeimer, maxEnergyCouple
   use ModPrerunField,	 ONLY: DoWritePrerun, UsePrerun, DtRead
   use ModGmCIMI,	 ONLY: UseGm
   use CIMI_waves,	 ONLY: &
@@ -195,6 +195,9 @@ subroutine CIMI_set_parameters(NameAction)
 
      case('#IEMODEL')
         call read_var('UseWeimer',UseWeimer)
+
+     case('#IECOUPLE')
+        call read_var('MaxEnergyCouple', MaxEnergyCouple)
 
      case('#GIMME')
         call read_var('UseGimme',UseGimme)

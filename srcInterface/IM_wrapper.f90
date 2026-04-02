@@ -1332,11 +1332,12 @@ contains
     ! indexes stored in Index and weights stored in Weight
     ! The variables should be put into Buff_V
 
-    use ModCimi,      ONLY: FAC_C, nLat=>np, nLon=>nt, Eje1, preP, preF
+    use ModCimi,      ONLY: FAC_C, nLat=>np, nLon=>nt, Eje1, preP, preF, energy
     use ModCimiPlanet,ONLY: H_, O_, e_, He_, Sw_
-    use ModCimiGrid,  ONLY: neng
+    use ModCimiGrid,  ONLY: neng, nspec
     use CON_router,   ONLY: IndexPtrType, WeightPtrType
     use ModCimiTrace, ONLY: iba
+    use ModIeCimi,    ONLY: MaxEnergyCouple
 
     integer,intent(in)            :: nPoint, iPointStart, nVar
     real,intent(out)              :: Buff_V(nVar)
@@ -1344,8 +1345,9 @@ contains
     type(WeightPtrType),intent(in):: Weight
 
 
-    integer :: iLat, iLon, iBlock, iPoint
+    integer :: iLat, iLon, iBlock, iPoint, ieng, ispec
     real    :: w
+    real    :: total_eflux(nspec), total_nflux(nspec), avg_e(nspec)
 
     character(len=*), parameter:: NameSub = 'IM_get_for_ie'
     !--------------------------------------------------------------------------
@@ -1375,12 +1377,26 @@ contains
        ! For now, southern hemisphere will be implemented soon
        if (iLat <= nLat .and. iLon <= nLon) then
           if(nVar >= 4) then
+              total_eflux = 0
+              total_nflux = 0
+              avg_e = 0
+              do ispec = 1, nspec
+                do ieng = 1, neng
+                  if (energy(1, ieng) < MaxEnergyCouple) then
+                    total_eflux(ispec) = total_eflux(ispec) + &
+                                        PreF(ispec, iLat, iLon, ieng)
+                    total_nflux(ispec) = total_nflux(ispec) + &
+                                        PreP(ispec, iLat, iLon, ieng)
+                  end if
+                end do
+              end do
+              avg_e = total_eflux / total_nflux
               ! Put ions
-              Buff_V(1) = Buff_V(1) + w * PreF(H_, iLat, iLon, neng+2)
-              Buff_V(2) = Buff_V(2) + w * Eje1(H_, iLat, iLon)
+              Buff_V(1) = Buff_V(1) + w * total_eflux(H_)
+              Buff_V(2) = Buff_V(2) + w * avg_e(H_)
               ! Put Electrons
-              Buff_V(3) = Buff_V(3) + w * PreF(e_, iLat, iLon, neng+2)
-              Buff_V(4) = Buff_V(4) + w * Eje1(e_, iLat, iLon)
+              Buff_V(3) = Buff_V(3) + w * total_eflux(e_)
+              Buff_V(4) = Buff_V(4) + w * avg_e(e_)
           end if
           if(nVar >= 5) then
               ! Put boundary location
