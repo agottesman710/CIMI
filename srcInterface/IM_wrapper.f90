@@ -1390,7 +1390,7 @@ contains
                   end if
                 end do
               end do
-              avg_e = total_eflux / total_nflux
+              where(total_nflux > 0) avg_e = total_eflux / total_nflux
               ! Put ions
               Buff_V(1) = Buff_V(1) + w * total_eflux(H_)
               Buff_V(2) = Buff_V(2) + w * avg_e(H_)
