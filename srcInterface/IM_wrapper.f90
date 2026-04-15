@@ -916,9 +916,16 @@ contains
              end if
           enddo; enddo
        case('PePar')
-          ! This is not yet implemented ...
-          if(DoTestMe) write(*,*) &
-               NameSub,": WARNING working on PePar, iVarCimi=", iVarCimi
+          do i=1,iSize; do j=1,jSize
+             if( i<iLatMin .or.  i > iba(j) ) then
+                Buffer_IIV(i,j,iVarCimi) = -1.
+             else
+                ! make sure pressure passed to GM is not lower than Pmin [nPa]                                                                                                                                                                                
+                ! to avoid too low GM pressure (only ion pressure)                                                                                                                                                                                            
+                Buffer_IIV(i,j,iVarCimi) = &
+                     max(PressurePar_IC(e_,i,j), Pmin)*1e-9
+             end if
+          enddo; enddo
        case default
           call CON_stop(NameSub//': unknown NameVar=' &
                //trim(NameVarCouple_V(iVarCimi)))
@@ -1377,26 +1384,12 @@ contains
        ! For now, southern hemisphere will be implemented soon
        if (iLat <= nLat .and. iLon <= nLon) then
           if(nVar >= 4) then
-              total_eflux = 0
-              total_nflux = 0
-              avg_e = 0
-              do ispec = 1, nspec
-                do ieng = 1, neng
-                  if (energy(1, ieng) < MaxEnergyCouple) then
-                    total_eflux(ispec) = total_eflux(ispec) + &
-                                        PreF(ispec, iLat, iLon, ieng)
-                    total_nflux(ispec) = total_nflux(ispec) + &
-                                        PreP(ispec, iLat, iLon, ieng)
-                  end if
-                end do
-              end do
-              where(total_nflux > 0) avg_e = total_eflux / total_nflux
-              ! Put ions
-              Buff_V(1) = Buff_V(1) + w * total_eflux(H_)
-              Buff_V(2) = Buff_V(2) + w * avg_e(H_)
+             ! Put ions
+              Buff_V(1) = Buff_V(1) + w * PreF(H_, iLat, iLon, neng+2)
+              Buff_V(2) = Buff_V(2) + w * Eje1(H_, iLat, iLon)
               ! Put Electrons
-              Buff_V(3) = Buff_V(3) + w * total_eflux(e_)
-              Buff_V(4) = Buff_V(4) + w * avg_e(e_)
+              Buff_V(3) = Buff_V(3) + w * PreF(e_, iLat, iLon, neng+2)
+              Buff_V(4) = Buff_V(4) + w * Eje1(e_, iLat, iLon)
           end if
           if(nVar >= 5) then
               ! Put boundary location
