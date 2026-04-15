@@ -21,7 +21,7 @@ subroutine CIMI_set_parameters(NameAction)
   use ModImTime,	 ONLY: iStartTime_I, TimeMax
   use ModCimiBoundary,	 ONLY: &
        UseBoundaryEbihara, UseYoungEtAl
-  use ModIeCimi,	 ONLY: UseWeimer, maxEnergyCouple
+  use ModIeCimi,	 ONLY: UseWeimer
   use ModPrerunField,	 ONLY: DoWritePrerun, UsePrerun, DtRead
   use ModGmCIMI,	 ONLY: UseGm
   use CIMI_waves,	 ONLY: &
@@ -60,7 +60,9 @@ subroutine CIMI_set_parameters(NameAction)
   
   integer :: iError, iDate, iCIMIPlotType, nCIMIPlotType
   real :: DensitySW, VelSW, BxSW, BySW, BzSW, DtOutputCIMIPlot
+  real :: ElectronTempRatio
   logical :: DoSaveSeparateFiles
+  
 
   character (len=5)             :: TypeComposition='FIXED'
   integer :: iSpec
@@ -195,9 +197,6 @@ subroutine CIMI_set_parameters(NameAction)
 
      case('#IEMODEL')
         call read_var('UseWeimer',UseWeimer)
-
-     case('#IECOUPLE')
-        call read_var('MaxEnergyCouple', MaxEnergyCouple)
 
      case('#GIMME')
         call read_var('UseGimme',UseGimme)
@@ -723,6 +722,20 @@ subroutine CIMI_set_parameters(NameAction)
      ! minimum pressure in nPa passed to GM
      case('#MINIMUMPRESSURETOGM')   
         call read_var('MinimumPressureToGM', Pmin)
+
+     ! Ratio of bulk pressure from GM that is given to electron pressure
+     case('#ELECTRONTEMPERATURERATIO')
+         call read_var('ElectronTempRatio', ElectronTempRatio)
+         do iSpec = 1, nspec - 1
+            tFactor_I(iSpec) = 1/(1 + ElectronTempRatio)
+         end do
+         tFactor_I(nspec) = ElectronTempRatio/(1 + ElectronTempRatio)
+
+     ! Temperature ratios used when setting outer boundary pressures from GM
+     case('#GMTEMPERATUREFACTORS')
+         do iSpec = 1, nspec
+            call read_var('tFactor', tFactor_I(iSpec))
+         end do
         
      case('#TIMESIMULATION')
         call read_var('TimeSimulation',time)
@@ -803,9 +816,6 @@ subroutine CIMI_set_parameters(NameAction)
      case('#RBSPENERGYGRID')
         call read_var('UseRBSPGrid', UseRBSPGrid)
         if (UseRBSPGrid) neng = nRBSPEnergy
-
-     case('#ELECTRONGRIDRATIO')
-        call read_var('ElectronGridRatio', ElectronGridRatio)
         
      case('#IMTIMESTEP')
         call read_var('IMDeltaT [s]',dt)
